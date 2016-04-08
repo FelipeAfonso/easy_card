@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">EasyCard</string>
+    <string name="action_settings"></string>
+    <string name="title_activity_add_activity">Adicionar Venda</string>
+    <string name="title_activity_history_activity">Próximas Entradas</string>
+    <string name="title_activity_settings_activity">Configuração</string>
+
+</resources>
