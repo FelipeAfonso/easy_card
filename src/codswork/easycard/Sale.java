@@ -19,6 +19,7 @@ public class Sale {
 	protected static int id_count = 0;
 	
 	public Sale(Card card, Account account, double value){
+		DatabaseHelper db = DatabaseHelper.getInstance(MainActivity.baseContext);
 		this.saleDate = Calendar.getInstance();
 		this.receiveDate = saleDate;
 		this.receiveDate.add(Calendar.DAY_OF_YEAR, 1);
@@ -26,6 +27,18 @@ public class Sale {
 		this.card = card;
 		this.account = account;
 		this.value = value;
+		this.valueToEnter = ((100 - Settings.getInterestDebit()) / 100) * value;
+		db.addDebitSale(db.getWritableDatabase(), this);
+	}
+	
+	public Sale(int id, Calendar sale_date, double value){
+		this.id = id;
+		this.saleDate = sale_date;
+		this.receiveDate = saleDate;
+		this.receiveDate.add(Calendar.DAY_OF_YEAR, 1);
+		this.value = value;
+		this.card = new Card("teste");
+		this.account = Account.Accounts.get(0);
 		this.valueToEnter = ((100 - Settings.getInterestDebit()) / 100) * value;
 	}
 

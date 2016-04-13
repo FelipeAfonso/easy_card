@@ -16,7 +16,7 @@ import android.widget.TextView;
 
 public class MainActivity extends ActionBarActivity {
 
-	public Account testAccount;
+	public static Account testAccount;
 	public static Context baseContext;
 	
     @Override
@@ -56,6 +56,13 @@ public class MainActivity extends ActionBarActivity {
         
         testAccount = new Account("Teste", null);
         Account.Accounts.add(testAccount);
+        DatabaseHelper db = DatabaseHelper.getInstance(MainActivity.baseContext);
+        Account.Accounts.get(0).Sales.addAll(db.getDebitSales(db.getReadableDatabase()));
+        
+        for(int x=0; x<Account.Accounts.get(0).Sales.size(); x++){
+        	Entry.entries.add(new Entry("Débito", Account.Accounts.get(0).Sales.get(x).receiveDate,
+        			Account.Accounts.get(0).Sales.get(x).getValueToEnter(), Account.Accounts.get(0).Sales.get(x)));
+        }
         
     }
     

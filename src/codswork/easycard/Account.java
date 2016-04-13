@@ -10,7 +10,7 @@ public class Account {
 	
 	public static ArrayList<Account> Accounts = new ArrayList<Account>();
 	
-	public List<Sale> Sales = new ArrayList<Sale>();
+	public ArrayList<Sale> Sales = new ArrayList<Sale>();
 	
 	private String name;
 	private String description;

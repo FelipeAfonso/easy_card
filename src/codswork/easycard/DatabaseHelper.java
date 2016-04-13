@@ -1,15 +1,22 @@
 package codswork.easycard;
 
 import java.io.Console;
+import java.sql.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.List;
 
+import android.R.integer;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.widget.Toast;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 	
@@ -45,9 +52,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		db.execSQL(CREATE_SETTINGS_TABLE);
 		db.insert(TABLE_SETTINGS, null, values);
 		
-	    String CREATE_ENTRY_TABLE = "CREATE TABLE entry(id INTEGER PRIMARY KEY, type CHAR(1), " +
-	    		"entry_date DATE, value DOUBLE(15), sale_id INT(8)";
-	    
+	    String CREATE_ENTRY_TABLE = "CREATE TABLE IF NOT EXISTS debit_sale(id INTEGER PRIMARY KEY, " +
+	    		"sale_date DATETIME, value DOUBLE(15))";
 	    db.execSQL(CREATE_ENTRY_TABLE);
 	}
 	
@@ -108,12 +114,47 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 				int y = x;
 				temp[x] = cursor.getDouble(cursor.getColumnIndex(KEY_SETTINGS_INTEREST_CREDIT+"_"+(y+1)));
 			}
-		}
+		}cursor.close();
 		db.close();
 		return temp;
 	}
 	public void setInterestCredit(SQLiteDatabase db, double value, int parcel){
 		db.execSQL("UPDATE settings SET interest_credit_" + (parcel+1) + " = " + value);
 		db.close();
+	}
+	
+	public void addDebitSale(SQLiteDatabase db, Sale s){
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+		db.execSQL("INSERT INTO debit_sale VALUES (" + s.id + ", DATETIME('now')"
+					+ ", " + s.value + ")");
+		
+        Toast.makeText(MainActivity.baseContext, "Venda registrada com sucesso!", Toast.LENGTH_SHORT);
+		db.close();
+	}
+	
+	public void removeDebitSale(SQLiteDatabase db, Sale s){
+		db.execSQL("REMOVE FROM debit_sale WHERE id = " + s.getId() + ";");
+		db.close();
+	}
+	
+	public List<Sale> getDebitSales(SQLiteDatabase db){
+		ArrayList<Sale> temp = new ArrayList<Sale>();
+		Cursor cursor = db.rawQuery("SELECT * FROM debit_sale", null);
+		if(cursor != null && cursor.moveToFirst()){
+			do{
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+				int id = cursor.getInt(cursor.getColumnIndex("id"));
+				Calendar sale_date = new GregorianCalendar();
+				try {
+					sale_date.setTime(sdf.parse(cursor.getString(cursor.getColumnIndex("sale_date"))));
+				} catch (ParseException e) {
+					e.printStackTrace();
+				}
+				double value = cursor.getDouble(cursor.getColumnIndex("value"));
+				Sale s = new Sale(id, sale_date, value);
+				temp.add(s);
+			}while(cursor.moveToNext());
+		} cursor.close();
+		return temp;
 	}
 }
