@@ -21,7 +21,21 @@ public class CreditSale extends Sale{
 		this.value = value;
 		this.parcels = parcels;
 		this.valueToEnter = ((100 - Settings.getInterestCredit(parcels, null)) / 100) * value;
-		calculateCreditReturn();
+		calculateCreditReturn(saleDate);
+		DatabaseHelper db = DatabaseHelper.getInstance(MainActivity.baseContext);
+		db.addDebitSale(db.getWritableDatabase(), this);
+	}
+	
+	public CreditSale(int id, double value, int parcels, Calendar sale_date){
+		super(new Card("teste"), MainActivity.testAccount, value);
+		this.saleDate = sale_date;
+		this.id = id;
+		this.card = new Card("teste");
+		this.account = MainActivity.testAccount;
+		this.value = value;
+		this.parcels = parcels;
+		this.valueToEnter = ((100 - Settings.getInterestCredit(parcels, null))/100) * value;
+		calculateCreditReturn(saleDate);
 	}
 
 	public int getParcels() {
@@ -32,8 +46,8 @@ public class CreditSale extends Sale{
 		this.parcels = parcels;
 	}
 	
-	private void calculateCreditReturn(){
-		Calendar tempC = Calendar.getInstance();
+	private void calculateCreditReturn(Calendar c){
+		Calendar tempC = (Calendar) c.clone();
 		for(int x=0; x<parcels; x++){
 			tempC.add(Calendar.DAY_OF_YEAR, 30);
 			values.add(valueToEnter/parcels);
@@ -45,6 +59,10 @@ public class CreditSale extends Sale{
 		return Sale.DateStandart.format(days.get(i).getTime());
 	}
 	
+	@Override
+	public String toString(){
+		return "Credito";
+	}
 	
 
 }

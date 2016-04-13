@@ -52,9 +52,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		db.execSQL(CREATE_SETTINGS_TABLE);
 		db.insert(TABLE_SETTINGS, null, values);
 		
-	    String CREATE_ENTRY_TABLE = "CREATE TABLE IF NOT EXISTS debit_sale(id INTEGER PRIMARY KEY, " +
+	    String CREATE_DEBIT_TABLE = "CREATE TABLE IF NOT EXISTS debit_sale(id INTEGER PRIMARY KEY, " +
 	    		"sale_date DATETIME, value DOUBLE(15))";
-	    db.execSQL(CREATE_ENTRY_TABLE);
+	    db.execSQL(CREATE_DEBIT_TABLE);
+	    String CREATE_CREDIT_TABLE = "CREATE TABLE IF NOT EXISTS credit_sale(id INTEGER PRIMARY KEY, "
+	    		+ "sale_date DATETIME, value DOUBLE(15), parcels INTEGER(2))";
+	    db.execSQL(CREATE_CREDIT_TABLE);
 	}
 	
 	@Override
@@ -128,7 +131,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		db.execSQL("INSERT INTO debit_sale VALUES (" + s.id + ", DATETIME('now')"
 					+ ", " + s.value + ")");
 		
-        Toast.makeText(MainActivity.baseContext, "Venda registrada com sucesso!", Toast.LENGTH_SHORT);
+        Toast.makeText(MainActivity.baseContext, "Venda registrada com sucesso!", Toast.LENGTH_SHORT).show();
 		db.close();
 	}
 	
@@ -152,6 +155,37 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 				}
 				double value = cursor.getDouble(cursor.getColumnIndex("value"));
 				Sale s = new Sale(id, sale_date, value);
+				temp.add(s);
+			}while(cursor.moveToNext());
+		} cursor.close();
+		return temp;
+	}
+	
+	public void addCreditSale(SQLiteDatabase db, CreditSale s){
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+		db.execSQL("INSERT INTO credit_sale VALUES (" + s.id + ", DATETIME('now')"
+					+ ", " + s.value + ", " + s.getParcels() + ")");
+		
+        Toast.makeText(MainActivity.baseContext, "Venda registrada com sucesso!", Toast.LENGTH_SHORT).show();
+		db.close();
+	}
+	
+	public List<CreditSale> getCreditSales(SQLiteDatabase db){
+		ArrayList<CreditSale> temp = new ArrayList<CreditSale>();
+		Cursor cursor = db.rawQuery("SELECT * FROM credit_sale", null);
+		if(cursor != null && cursor.moveToFirst()){
+			do{
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+				int id = cursor.getInt(cursor.getColumnIndex("id"));
+				Calendar sale_date = new GregorianCalendar();
+				try {
+					sale_date.setTime(sdf.parse(cursor.getString(cursor.getColumnIndex("sale_date"))));
+				} catch (ParseException e) {
+					e.printStackTrace();
+				}
+				double value = cursor.getDouble(cursor.getColumnIndex("value"));
+				int parcel = cursor.getInt(cursor.getColumnIndex("parcels"));
+				CreditSale s = new CreditSale(id, value, parcel, sale_date);
 				temp.add(s);
 			}while(cursor.moveToNext());
 		} cursor.close();

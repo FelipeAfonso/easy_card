@@ -87,5 +87,10 @@ public class Sale {
 	public double getValueToEnter() {
 		return valueToEnter;
 	}
+	@Override
+	public String toString(){
+		return "Debito";
+	}
+	
 
 }

@@ -20,7 +20,6 @@ public class History_Activity extends ActionBarActivity {
 	
 	public static DecimalFormat df = new DecimalFormat("#.00");
 	
-	private Account testAcc = Account.Accounts.get(0);
 	private LinearLayout layout;
 
     @Override

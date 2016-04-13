@@ -58,10 +58,18 @@ public class MainActivity extends ActionBarActivity {
         Account.Accounts.add(testAccount);
         DatabaseHelper db = DatabaseHelper.getInstance(MainActivity.baseContext);
         Account.Accounts.get(0).Sales.addAll(db.getDebitSales(db.getReadableDatabase()));
-        
+        Account.Accounts.get(0).Sales.addAll(db.getCreditSales(db.getReadableDatabase()));
+        db.close();
         for(int x=0; x<Account.Accounts.get(0).Sales.size(); x++){
-        	Entry.entries.add(new Entry("Débito", Account.Accounts.get(0).Sales.get(x).receiveDate,
-        			Account.Accounts.get(0).Sales.get(x).getValueToEnter(), Account.Accounts.get(0).Sales.get(x)));
+        	if(Account.Accounts.get(0).Sales.get(x).toString() == "Debito"){
+        		Entry.entries.add(new Entry("Débito", Account.Accounts.get(0).Sales.get(x).receiveDate,
+        				Account.Accounts.get(0).Sales.get(x).getValueToEnter(), Account.Accounts.get(0).Sales.get(x)));
+        	}else{
+        		CreditSale temp = (CreditSale) Account.Accounts.get(0).Sales.get(x);
+        		for(int y=0; y<temp.getParcels(); y++){
+					Entry.entries.add(new Entry("Crédito", temp.days.get(x), temp.values.get(x), temp));
+				}		
+        	}
         }
         
     }
